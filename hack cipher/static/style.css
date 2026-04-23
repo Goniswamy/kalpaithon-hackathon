@@ -159,3 +159,11 @@ button:hover {
     color: #ffffff; /* 🔥 FIXED */
     text-shadow: 0 0 10px rgba(255,255,255,0.2);
 }
+
+button:last-child {
+    background: linear-gradient(45deg, #ff4d4d, #cc0000);
+}
+
+button:last-child:hover {
+    box-shadow: 0 0 20px rgba(255,0,0,0.6);
+}
