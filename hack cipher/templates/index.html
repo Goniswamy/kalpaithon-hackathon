@@ -1,23 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Focus Guard</title>
+    <title>Smart Travel Planner</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
+<div class="main">
 
-    <h1>Focus Guard 🧠</h1>
+    <div class="left">
+        <h1>Plan Your <span>Dream Trip</span></h1>
+        <p>Smart itinerary, budget planning, and hidden gems — all in one place.</p>
+    </div>
 
-    <form method="POST">
-        <label>Enter Task:</label><br>
-        <input type="text" name="task"><br><br>
+    <div class="right">
 
-        <label>Time (hours):</label><br>
-        <input type="text" name="time"><br><br>
+        <h2>🌍 Travel Planner</h2>
 
-        <button type="submit">Generate Plan</button>
-    </form>
+        <div class="result" id="result"></div>
 
-    <h3>{{ output }}</h3>
+        <div class="input-group">
+            <input id="destination" placeholder="Destination (e.g. Goa)">
+        </div>
 
+        <div class="input-group">
+            <input id="days" type="number" placeholder="Number of Days">
+        </div>
+
+        <div class="input-group">
+            <input id="budget" type="number" placeholder="Budget (₹)">
+        </div>
+
+        <div class="input-group">
+            <select id="style">
+                <option>Budget</option>
+                <option>Mid-range</option>
+                <option>Luxury</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <select id="interests">
+                <option>Nature</option>
+                <option>Adventure</option>
+                <option>Food</option>
+                <option>Culture</option>
+                <option>Nightlife</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <input id="start" placeholder="Starting Location (optional)">
+        </div>
+
+        <button id="btn" onclick="generatePlan()">✨ Generate Plan</button>
+
+    </div>
+
+</div>
+
+<script src="/static/script.js"></script>
 </body>
 </html>
