@@ -85,7 +85,7 @@ Then open:
 http://localhost:5001
 
 
-##📊 Future Improvements
+## 📊 Future Improvements
 Real-time hotel booking integration
 
 Maps integration
