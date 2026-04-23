@@ -83,10 +83,9 @@ python app.py
 Then open:
 
 http://localhost:5001
-📸 Screenshots
-(Add your UI screenshots here)
 
-📊 Future Improvements
+
+##📊 Future Improvements
 Real-time hotel booking integration
 
 Maps integration
@@ -97,7 +96,6 @@ AI chatbot assistant
 
 👨‍💻 Team
 Akshay
-
 Adarsh
 
 🏁 Conclusion
