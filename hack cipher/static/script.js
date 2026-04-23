@@ -40,3 +40,18 @@ async function generatePlan() {
     btn.disabled = false;
     btn.innerText = "✨ Generate Plan";
 }
+
+function resetForm() {
+    // clear inputs
+    document.getElementById("destination").value = "";
+    document.getElementById("days").value = "";
+    document.getElementById("budget").value = "";
+    document.getElementById("style").selectedIndex = 0;
+    document.getElementById("interests").selectedIndex = 0;
+    document.getElementById("start").value = "";
+
+    // clear output
+    const resultBox = document.getElementById("result");
+    resultBox.innerHTML = "";
+    resultBox.style.display = "none";
+}
