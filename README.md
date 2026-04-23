@@ -31,7 +31,7 @@ It provides:
 
 ---
 
-## 🛠️ Tech Stack (Optional)
+## 🛠️ Tech Stack
 
 ### Frontend
 - HTML  
