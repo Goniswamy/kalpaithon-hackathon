@@ -1,8 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Smart Travel Planner</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Travel Planner — AI-Powered Trip Planning</title>
+    <meta name="description" content="Plan your dream trip with AI-powered itinerary, budget breakdown, hotel recommendations, and interactive maps.">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -33,17 +38,17 @@
                 </div>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">💡</div>
+                <div class="feature-icon">🏨</div>
                 <div>
-                    <div class="feature-title">Travel Tips</div>
-                    <div class="feature-desc">Money-saving tips specific to your trip</div>
+                    <div class="feature-title">Hotel Finder</div>
+                    <div class="feature-desc">Curated stays with ratings & booking links</div>
                 </div>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🌍</div>
+                <div class="feature-icon">📍</div>
                 <div>
-                    <div class="feature-title">Any Destination</div>
-                    <div class="feature-desc">India or international — we cover it all</div>
+                    <div class="feature-title">Interactive Maps</div>
+                    <div class="feature-desc">Visual maps with Google Maps navigation</div>
                 </div>
             </div>
         </div>
@@ -118,6 +123,8 @@
 
     </div>
 
+</div>
+
 <!-- ✅ FULLSCREEN RESULT OVERLAY -->
 <div class="overlay" id="overlay">
     <div class="overlay-header">
@@ -126,9 +133,44 @@
             <button class="overlay-close" onclick="closeOverlay()">✕ Back to Planner</button>
         </div>
     </div>
-    <div class="overlay-body" id="overlayBody"></div>
+
+    <!-- TAB NAVIGATION -->
+    <div class="overlay-tabs" id="overlayTabs">
+        <button class="tab-btn active" data-tab="itinerary" onclick="switchTab('itinerary')">📋 Itinerary</button>
+        <button class="tab-btn" data-tab="map" onclick="switchTab('map')">🗺️ Map</button>
+        <button class="tab-btn" data-tab="hotels" onclick="switchTab('hotels')">🏨 Hotels</button>
+        <button class="tab-btn" data-tab="gallery" onclick="switchTab('gallery')">📸 Gallery</button>
+    </div>
+
+    <!-- TABBED CONTENT -->
+    <div class="overlay-content">
+        <!-- Itinerary Tab -->
+        <div class="tab-panel active" id="tab-itinerary">
+            <div class="overlay-body" id="overlayBody"></div>
+        </div>
+
+        <!-- Map Tab -->
+        <div class="tab-panel" id="tab-map">
+            <div class="map-wrapper">
+                <div id="tripMap"></div>
+                <div class="map-legend" id="mapLegend"></div>
+            </div>
+        </div>
+
+        <!-- Hotels Tab -->
+        <div class="tab-panel" id="tab-hotels">
+            <div class="hotels-container" id="hotelsContainer"></div>
+        </div>
+
+        <!-- Gallery Tab -->
+        <div class="tab-panel" id="tab-gallery">
+            <div class="gallery-container" id="galleryContainer"></div>
+        </div>
+    </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="/static/script.js"></script>
 </body>
+
 </html>
