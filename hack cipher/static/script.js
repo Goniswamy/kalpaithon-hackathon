@@ -140,6 +140,7 @@ function closeOverlay() {
     document.getElementById("overlay").classList.remove("active");
     document.body.style.overflow = "";
     if (window._tripMap) { window._tripMap.remove(); window._tripMap = null; }
+    sessionStorage.setItem("overlayOpen", "false");
 }
 
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeOverlay(); });
@@ -151,6 +152,7 @@ function switchTab(tabName) {
     if (tabName === "map" && window._tripMap) {
         setTimeout(() => window._tripMap.invalidateSize(), 100);
     }
+    sessionStorage.setItem("activeTab", tabName);
 }
 
 // ── Generate plan (ENHANCED) ─────────────────────────────────────
@@ -184,6 +186,12 @@ async function generatePlan() {
             body.innerHTML = `<div style="color:#ff6b6b; padding:20px; text-align:center;">❌ ${data.error}</div>`;
             return;
         }
+
+        // Save state for persistence on refresh
+        sessionStorage.setItem("tripForm", JSON.stringify({ location, days, budget, style, interest, start }));
+        sessionStorage.setItem("tripPlan", JSON.stringify(data));
+        sessionStorage.setItem("overlayOpen", "true");
+        sessionStorage.removeItem("placesData"); // Clear previous cached places
 
         if (data.format === "json" && typeof data.reply === "object") {
             const plan = data.reply;
@@ -235,9 +243,9 @@ function formatStructuredReply(plan, location, days, budget) {
                     </div>
                     <div class="timeline-text">
                         <h4 class="timeline-title">${day.title}</h4>
-                        <ul class="timeline-activities">
-                            ${(day.activities || []).map(a => `<li>${a}</li>`).join("")}
-                        </ul>
+                        <p class="timeline-desc">
+                            ${day.description || (day.activities || []).join(". ")}
+                        </p>
                     </div>
                 </div>
             </div>`;
@@ -319,6 +327,7 @@ async function loadMapAndPlaces(places, destination, start) {
             initTripMap(data.places, destination);
             // Store for gallery
             window._placesData = data.places;
+            sessionStorage.setItem("placesData", JSON.stringify(data.places));
         }
     } catch (err) {
         console.error("Map load error:", err);
@@ -459,5 +468,75 @@ function resetForm() {
     document.getElementById("style").selectedIndex     = 0;
     document.getElementById("interests").selectedIndex = 0;
     document.getElementById("budgetBreakdown").innerHTML = "";
+    sessionStorage.removeItem("tripForm");
+    sessionStorage.removeItem("tripPlan");
+    sessionStorage.setItem("overlayOpen", "false");
+    sessionStorage.removeItem("activeTab");
+    sessionStorage.removeItem("placesData");
     closeOverlay();
 }
+
+// ── State Persistence ──────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+    // Restore form values
+    const savedForm = sessionStorage.getItem("tripForm");
+    if (savedForm) {
+        try {
+            const form = JSON.parse(savedForm);
+            if (form.location) document.getElementById("destination").value = form.location;
+            if (form.start) document.getElementById("start").value = form.start;
+            if (form.days) document.getElementById("days").value = form.days;
+            if (form.budget) document.getElementById("budget").value = form.budget;
+            if (form.style) document.getElementById("style").value = form.style;
+            if (form.interest) document.getElementById("interests").value = form.interest;
+            updateBudget();
+        } catch (e) {
+            console.error("Error restoring form:", e);
+        }
+    }
+
+    // Restore overlay and plan
+    const isOverlayOpen = sessionStorage.getItem("overlayOpen") === "true";
+    if (isOverlayOpen && savedForm) {
+        const savedPlanStr = sessionStorage.getItem("tripPlan");
+        if (savedPlanStr) {
+            try {
+                const data = JSON.parse(savedPlanStr);
+                const form = JSON.parse(savedForm);
+                
+                openOverlay(form.location);
+                showSkeletons();
+                
+                const body = document.getElementById("overlayBody");
+                
+                if (data.format === "json" && typeof data.reply === "object") {
+                    const plan = data.reply;
+                    body.innerHTML = formatStructuredReply(plan, form.location, form.days, form.budget);
+                    
+                    const cachedPlaces = sessionStorage.getItem("placesData");
+                    if (cachedPlaces) {
+                        const placesData = JSON.parse(cachedPlaces);
+                        initTripMap(placesData, form.location);
+                        window._placesData = placesData;
+                    } else {
+                        loadMapAndPlaces(plan.places || [], form.location, form.start);
+                    }
+                    
+                    renderHotels(plan.hotels || [], form.location);
+                    renderGallery(plan.places || [], form.location);
+                } else {
+                    const text = typeof data.reply === "string" ? data.reply : JSON.stringify(data.reply);
+                    body.innerHTML = formatReplyLegacy(text, form.location, form.days, form.budget);
+                }
+                
+                // Restore active tab
+                const activeTab = sessionStorage.getItem("activeTab");
+                if (activeTab) {
+                    switchTab(activeTab);
+                }
+            } catch (e) {
+                console.error("Error restoring plan:", e);
+            }
+        }
+    }
+});
