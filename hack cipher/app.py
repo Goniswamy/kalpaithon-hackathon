@@ -4,7 +4,7 @@ import json
 import re
 
 app = Flask(__name__)
-OPENROUTER_API_KEY = "API_KEY"
+OPENROUTER_API_KEY = ""
 
 @app.route("/")
 def home():
@@ -32,11 +32,7 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
     {{
       "day": 1,
       "title": "Arrival & Exploration",
-      "activities": [
-        "Morning: Arrive and check in to hotel",
-        "Afternoon: Visit local market",
-        "Evening: Dinner at popular restaurant"
-      ]
+      "description": "A brief, engaging 2-3 sentence paragraph describing the entire day's flow. No bullet points."
     }}
   ],
   "places": [
