@@ -601,26 +601,11 @@ button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
     font-weight: 600;
 }
 
-.timeline-activities {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.timeline-activities li {
-    position: relative;
-    padding-left: 20px;
-    margin-bottom: 8px;
+.timeline-desc {
     color: #c0e4ff;
-    font-size: 14.5px;
-    line-height: 1.6;
-}
-
-.timeline-activities li::before {
-    content: '→';
-    position: absolute;
-    left: 0;
-    color: #00c6ff;
+    font-size: 16.5px;
+    line-height: 1.7;
+    margin: 0;
 }
 
 /* ───────── BUDGET GRID ───────── */
