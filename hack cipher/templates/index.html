@@ -2,175 +2,167 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Travel Planner — AI-Powered Trip Planning</title>
-    <meta name="description" content="Plan your dream trip with AI-powered itinerary, budget breakdown, hotel recommendations, and interactive maps.">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>Smart Travel Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
-<div class="main">
+    <div class="main">
 
-    <!-- LEFT PANEL -->
-    <div class="left">
-        <div class="left-top">
-            <div class="logo">✈️ TripPlanner</div>
-            <h1>Plan Your <span>Dream Trip</span></h1>
-            <p>Smart itinerary, budget planning, and hidden gems — all in one place.</p>
+        <!-- LEFT PANEL -->
+        <div class="left">
+            <div class="left-top">
+                <div class="logo">✈️ TripPlanner</div>
+                <h1>Plan Your <span>Dream Trip</span></h1>
+                <p>Smart itinerary, budget planning, and hidden gems — all in one place.</p>
+            </div>
+
+            <div class="left-features">
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <div>
+                        <div class="feature-title">Smart Itinerary</div>
+                        <div class="feature-desc">Day-by-day plan tailored to your interests</div>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <div>
+                        <div class="feature-title">Budget Breakdown</div>
+                        <div class="feature-desc">Live split based on destination & days</div>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏨</div>
+                    <div>
+                        <div class="feature-title">Hotel Finder</div>
+                        <div class="feature-desc">Curated stays with ratings & booking links</div>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <div>
+                        <div class="feature-title">Interactive Maps</div>
+                        <div class="feature-desc">Visual maps with Google Maps navigation</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="left-bottom">
+                <div class="stat"><span class="stat-num">50+</span><span class="stat-label">Destinations</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-num">AI</span><span class="stat-label">Powered</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-num">₹</span><span class="stat-label">Budget Smart</span></div>
+            </div>
         </div>
 
-        <div class="left-features">
-            <div class="feature-card">
-                <div class="feature-icon">🗺️</div>
-                <div>
-                    <div class="feature-title">Smart Itinerary</div>
-                    <div class="feature-desc">Day-by-day plan tailored to your interests</div>
+        <!-- RIGHT PANEL -->
+        <div class="right">
+
+            <!-- FORM centered -->
+            <div class="form-section">
+                <h2>🌍 Travel Planner</h2>
+
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>📍 Destination</label>
+                        <div class="autocomplete-wrapper" id="destination-ac-wrapper">
+                            <input id="destination" placeholder="e.g. Dandeli, Goa, Paris" autocomplete="off">
+                            <div class="ac-dropdown" id="destination-dropdown"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>🏠 Starting From</label>
+                        <div class="autocomplete-wrapper" id="start-ac-wrapper">
+                            <input id="start" placeholder="e.g. Bengaluru" autocomplete="off">
+                            <div class="ac-dropdown" id="start-dropdown"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>📅 Number of Days</label>
+                        <input id="days" type="number" placeholder="e.g. 4">
+                    </div>
+                    <div class="input-group">
+                        <label>💰 Budget (₹)</label>
+                        <input id="budget" type="number" placeholder="e.g. 15000">
+                    </div>
+                    <div class="input-group">
+                        <label>🎒 Travel Style</label>
+                        <select id="style">
+                            <option>Budget</option>
+                            <option selected>Mid-range</option>
+                            <option>Luxury</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>🎯 Interests</label>
+                        <select id="interests">
+                            <option>Nature</option>
+                            <option>Adventure</option>
+                            <option>Food</option>
+                            <option>Culture</option>
+                            <option>Nightlife</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="budgetBreakdown"></div>
+
+                <div class="btn-row">
+                    <button id="btn" onclick="generatePlan()">✨ Generate Plan</button>
+                    <button class="reset-btn" onclick="resetForm()">🔄 Reset</button>
                 </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">💰</div>
-                <div>
-                    <div class="feature-title">Budget Breakdown</div>
-                    <div class="feature-desc">Live split based on destination & days</div>
+
+            <!-- ANIMATED TRAVEL STRIP at bottom -->
+            <div class="travel-strip">
+                <div class="strip-track" id="stripTrack">
+                    <!-- filled by JS -->
                 </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">🏨</div>
-                <div>
-                    <div class="feature-title">Hotel Finder</div>
-                    <div class="feature-desc">Curated stays with ratings & booking links</div>
-                </div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📍</div>
-                <div>
-                    <div class="feature-title">Interactive Maps</div>
-                    <div class="feature-desc">Visual maps with Google Maps navigation</div>
-                </div>
-            </div>
+
         </div>
 
-        <div class="left-bottom">
-            <div class="stat"><span class="stat-num">50+</span><span class="stat-label">Destinations</span></div>
-            <div class="stat-divider"></div>
-            <div class="stat"><span class="stat-num">AI</span><span class="stat-label">Powered</span></div>
-            <div class="stat-divider"></div>
-            <div class="stat"><span class="stat-num">₹</span><span class="stat-label">Budget Smart</span></div>
-        </div>
     </div>
 
-    <!-- RIGHT PANEL -->
-    <div class="right">
-
-        <!-- FORM centered -->
-        <div class="form-section">
-            <h2>🌍 Travel Planner</h2>
-
-            <div class="form-grid">
-                <div class="input-group">
-                    <label>📍 Destination</label>
-                    <input id="destination" placeholder="e.g. Dandeli, Goa, Paris">
-                </div>
-                <div class="input-group">
-                    <label>🏠 Starting From</label>
-                    <input id="start" placeholder="e.g. Bengaluru">
-                </div>
-                <div class="input-group">
-                    <label>📅 Number of Days</label>
-                    <input id="days" type="number" placeholder="e.g. 4">
-                </div>
-                <div class="input-group">
-                    <label>💰 Budget (₹)</label>
-                    <input id="budget" type="number" placeholder="e.g. 15000">
-                </div>
-                <div class="input-group">
-                    <label>🎒 Travel Style</label>
-                    <select id="style">
-                        <option>Budget</option>
-                        <option selected>Mid-range</option>
-                        <option>Luxury</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>🎯 Interests</label>
-                    <select id="interests">
-                        <option>Nature</option>
-                        <option>Adventure</option>
-                        <option>Food</option>
-                        <option>Culture</option>
-                        <option>Nightlife</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="budgetBreakdown"></div>
-
-            <div class="btn-row">
-                <button id="btn" onclick="generatePlan()">✨ Generate Plan</button>
-                <button class="reset-btn" onclick="resetForm()">🔄 Reset</button>
-            </div>
-        </div>
-
-        <!-- ANIMATED TRAVEL STRIP at bottom -->
-        <div class="travel-strip">
-            <div class="strip-track" id="stripTrack">
-                <!-- filled by JS -->
-            </div>
-        </div>
-
     </div>
 
-</div>
+    <!-- ✅ IMMERSIVE FULLSCREEN RESULT OVERLAY -->
+    <div class="overlay" id="overlay">
 
-<!-- ✅ FULLSCREEN RESULT OVERLAY -->
-<div class="overlay" id="overlay">
-    <div class="overlay-header">
-        <div class="overlay-title" id="overlayTitle">📍 Your Trip Plan</div>
-        <div class="overlay-actions">
-            <button class="overlay-close" onclick="closeOverlay()">✕ Back to Planner</button>
-        </div>
-    </div>
-
-    <!-- TAB NAVIGATION -->
-    <div class="overlay-tabs" id="overlayTabs">
-        <button class="tab-btn active" data-tab="itinerary" onclick="switchTab('itinerary')">📋 Itinerary</button>
-        <button class="tab-btn" data-tab="map" onclick="switchTab('map')">🗺️ Map</button>
-        <button class="tab-btn" data-tab="hotels" onclick="switchTab('hotels')">🏨 Hotels</button>
-        <button class="tab-btn" data-tab="gallery" onclick="switchTab('gallery')">📸 Gallery</button>
-    </div>
-
-    <!-- TABBED CONTENT -->
-    <div class="overlay-content">
-        <!-- Itinerary Tab -->
-        <div class="tab-panel active" id="tab-itinerary">
-            <div class="overlay-body" id="overlayBody"></div>
-        </div>
-
-        <!-- Map Tab -->
-        <div class="tab-panel" id="tab-map">
-            <div class="map-wrapper">
-                <div id="tripMap"></div>
-                <div class="map-legend" id="mapLegend"></div>
+        <!-- HERO SECTION -->
+        <div class="hero-section" id="heroSection">
+            <div class="hero-image" id="heroImage"></div>
+            <div class="hero-gradient"></div>
+            <div class="hero-content">
+                <div class="hero-back-btn" onclick="closeOverlay()">
+                    <span>←</span> Back to Planner
+                </div>
+                <div class="hero-info">
+                    <h1 class="hero-title" id="heroTitle">Your Destination</h1>
+                    <div class="hero-badges" id="heroBadges">
+                        <!-- Filled by JS: days, budget, weather, style -->
+                    </div>
+                </div>
+                <div class="hero-actions" id="heroActions">
+                    <button class="hero-action-btn" onclick="saveItinerary()" id="saveBtn" title="Save Trip">
+                        <span>💾</span> Save
+                    </button>
+                    <button class="hero-action-btn" onclick="shareTrip()" title="Share Trip">
+                        <span>📤</span> Share
+                    </button>
+                    <button class="hero-action-btn" onclick="exportPDF()" title="Export PDF">
+                        <span>📄</span> Export
+                    </button>
+                </div>
             </div>
         </div>
-
-        <!-- Hotels Tab -->
-        <div class="tab-panel" id="tab-hotels">
-            <div class="hotels-container" id="hotelsContainer"></div>
-        </div>
-
-        <!-- Gallery Tab -->
-        <div class="tab-panel" id="tab-gallery">
-            <div class="gallery-container" id="galleryContainer"></div>
-        </div>
+        <div class="overlay-body" id="overlayBody"></div>
     </div>
-</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="/static/script.js"></script>
+    <script src="/static/script.js"></script>
 </body>
 
 </html>

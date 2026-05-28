@@ -4,11 +4,98 @@ import json
 import re
 
 app = Flask(__name__)
-OPENROUTER_API_KEY = ""
+OPENROUTER_API_KEY = "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"
 
 @app.route("/")
 def home():
     return render_template("index.html")
+
+
+@app.route("/autocomplete", methods=["GET"])
+def autocomplete():
+    """
+    City/location autocomplete using Photon (OpenStreetMap-based geocoder).
+    Free, no API key needed, fast responses, global coverage.
+    """
+    query = request.args.get("q", "").strip()
+    if len(query) < 2:
+        return jsonify({"suggestions": []})
+
+    # Check cache first
+    cache_key = query.lower()
+    if cache_key in _autocomplete_cache:
+        return jsonify({"suggestions": _autocomplete_cache[cache_key]})
+
+    try:
+        resp = requests.get(
+            "https://photon.komoot.io/api/",
+            params={
+                "q": query,
+                "limit": 7,
+                "lang": "en",
+            },
+            headers={"User-Agent": "TripPlannerApp/1.0"},
+            timeout=4,
+        )
+        data = resp.json()
+        suggestions = []
+        seen = set()
+
+        for feature in data.get("features", []):
+            props = feature.get("properties", {})
+            coords = feature.get("geometry", {}).get("coordinates", [None, None])
+
+            name = props.get("name", "")
+            city = props.get("city", "")
+            state = props.get("state", "")
+            country = props.get("country", "")
+            osm_type = props.get("type", "")
+
+            # Build display text
+            primary = name or city
+            if not primary:
+                continue
+
+            parts = [primary]
+            if state and state != primary:
+                parts.append(state)
+            if country:
+                parts.append(country)
+            display = ", ".join(parts)
+
+            # Deduplicate
+            dedup_key = display.lower()
+            if dedup_key in seen:
+                continue
+            seen.add(dedup_key)
+
+            # Determine icon based on type
+            icon = "📍"
+            if osm_type in ("city", "town", "village"):
+                icon = "🏙️"
+            elif osm_type in ("state", "region"):
+                icon = "🗺️"
+            elif osm_type in ("country"):
+                icon = "🌍"
+
+            suggestions.append({
+                "display": display,
+                "value": primary,
+                "secondary": ", ".join(parts[1:]) if len(parts) > 1 else "",
+                "icon": icon,
+                "lat": coords[1] if len(coords) > 1 else None,
+                "lng": coords[0] if len(coords) > 0 else None,
+            })
+
+        # Cache results (limit cache size)
+        if len(_autocomplete_cache) > 500:
+            _autocomplete_cache.clear()
+        _autocomplete_cache[cache_key] = suggestions
+
+        return jsonify({"suggestions": suggestions})
+
+    except Exception as e:
+        return jsonify({"suggestions": [], "error": str(e)})
 
 @app.route("/plan", methods=["POST"])
 def plan():
@@ -21,58 +108,16 @@ def plan():
     start = data.get("start", "not specified")
 
     prompt = f"""
-Create a {days}-day travel plan for {location}.
-Starting from: {start}
-Budget: ₹{budget} ({style} style)
-Interests: {interest}
-
-Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
-{{
-  "itinerary": [
-    {{
-      "day": 1,
-      "title": "Arrival & Exploration",
-      "description": "A brief, engaging 2-3 sentence paragraph describing the entire day's flow. No bullet points."
-    }}
-  ],
-  "places": [
-    {{
-      "name": "Place Name",
-      "description": "Brief 1-line description",
-      "category": "temple/beach/nature/market/monument/park/museum"
-    }}
-  ],
-  "hotels": [
-    {{
-      "name": "Hotel Name",
-      "price_range": "₹1500 - ₹3000 per night",
-      "rating": 4.2,
-      "description": "Brief 1-line description of the hotel",
-      "distance": "2 km from city center",
-      "type": "budget/mid-range/luxury"
-    }}
-  ],
-  "budget_breakdown": {{
-    "stay": 0,
-    "food": 0,
-    "transport": 0,
-    "activities": 0,
-    "misc": 0
-  }},
-  "tips": [
-    "Useful travel tip 1",
-    "Useful travel tip 2"
-  ]
-}}
-
-Rules:
-- Include 5-8 places in the places array
-- Include 3-5 hotels matching the {style} travel style
-- Budget breakdown must add up to ₹{budget}
-- All arrays must have at least 2 items
-- Return ONLY the JSON object, nothing else
-"""
-
+    Create a {days}-day travel plan for {location}.
+    Starting from: {start}
+    Budget: ₹{budget} ({style} style)
+    Interests: {interest}
+    Give:
+    1. Day-wise itinerary
+    2. Top places to visit
+    3. Budget breakdown
+    4. Tips for the traveler
+    """
     try:
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
@@ -169,128 +214,6 @@ Return ONLY valid JSON, no explanation, no markdown:
 
     except Exception as e:
         return jsonify({"error": str(e)})
-
-
-@app.route("/geocode", methods=["POST"])
-def geocode():
-    data = request.get_json()
-    places = data.get("places", [])
-    results = []
-
-    for place in places[:10]:  # limit to 10 places
-        try:
-            resp = requests.get(
-                "https://nominatim.openstreetmap.org/search",
-                params={"q": place, "format": "json", "limit": 1},
-                headers={"User-Agent": "TripPlannerApp/1.0"},
-                timeout=5
-            )
-            geo = resp.json()
-            if geo:
-                results.append({
-                    "name": place,
-                    "lat": float(geo[0]["lat"]),
-                    "lng": float(geo[0]["lon"])
-                })
-        except Exception:
-            continue
-
-    return jsonify({"locations": results})
-
-
-def get_wikimedia_image(query):
-    url = "https://commons.wikimedia.org/w/api.php"
-    params = {
-        "action": "query",
-        "generator": "search",
-        "gsrnamespace": 6,
-        "gsrsearch": query,
-        "gsrlimit": 1,
-        "prop": "imageinfo",
-        "iiprop": "url",
-        "format": "json"
-    }
-    headers = {"User-Agent": "TripPlannerApp/1.0"}
-    try:
-        r = requests.get(url, params=params, headers=headers, timeout=5).json()
-        pages = r.get("query", {}).get("pages", {})
-        if pages:
-            for page_id in pages:
-                return pages[page_id]["imageinfo"][0]["url"]
-    except Exception:
-        pass
-    return "https://loremflickr.com/800/600/travel/all"  # Fallback
-
-@app.route("/places-info", methods=["POST"])
-def places_info():
-    """
-    Takes a list of place names + destination context.
-    Returns geocoded coords, REAL Wikimedia image URLs, and Google Maps links.
-    """
-    data = request.get_json()
-    places = data.get("places", [])
-    destination = data.get("destination", "")
-    start = data.get("start", "")
-    results = []
-
-    for place_obj in places[:10]:
-        name = place_obj if isinstance(place_obj, str) else place_obj.get("name", "")
-        desc = "" if isinstance(place_obj, str) else place_obj.get("description", "")
-        category = "" if isinstance(place_obj, str) else place_obj.get("category", "")
-
-        search_query = f"{name}, {destination}" if destination else name
-
-        # Geocode via Nominatim
-        lat, lng = None, None
-        try:
-            import time
-            time.sleep(1) # Respect Nominatim rate limit
-            resp = requests.get(
-                "https://nominatim.openstreetmap.org/search",
-                params={"q": search_query, "format": "json", "limit": 1},
-                headers={"User-Agent": "TripPlannerApp/1.0"},
-                timeout=5
-            )
-            geo = resp.json()
-            if geo:
-                lat = float(geo[0]["lat"])
-                lng = float(geo[0]["lon"])
-        except Exception:
-            pass
-
-        # Build Google Maps links
-        encoded_name = requests.utils.quote(search_query)
-        maps_link = f"https://www.google.com/maps/search/?api=1&query={encoded_name}"
-        directions_link = ""
-        if start:
-            encoded_start = requests.utils.quote(start)
-            directions_link = f"https://www.google.com/maps/dir/?api=1&origin={encoded_start}&destination={encoded_name}"
-
-        # Real Image via Wikimedia
-        image_url = get_wikimedia_image(f"{name} {destination}")
-
-        results.append({
-            "name": name,
-            "description": desc,
-            "category": category,
-            "lat": lat,
-            "lng": lng,
-            "maps_link": maps_link,
-            "directions_link": directions_link,
-            "image_url": image_url
-        })
-
-    return jsonify({"places": results})
-
-
-from flask import redirect
-
-@app.route("/image-proxy")
-def image_proxy():
-    """Returns a real Wikimedia image for a query via 302 redirect."""
-    query = request.args.get("q", "")
-    image_url = get_wikimedia_image(query)
-    return redirect(image_url)
 
 
 if __name__ == "__main__":

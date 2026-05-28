@@ -1,21 +1,21 @@
 // ── Animated destination strip ────────────────────────────────────
 const destinations = [
-    { icon: "🏖️", name: "Goa",        tag: "Beach"      },
-    { icon: "🏔️", name: "Manali",     tag: "Mountains"  },
-    { icon: "🕌", name: "Varanasi",   tag: "Heritage"   },
-    { icon: "🌴", name: "Kerala",     tag: "Nature"      },
-    { icon: "🐯", name: "Ranthambore",tag: "Wildlife"   },
-    { icon: "🏯", name: "Jaipur",     tag: "Culture"    },
-    { icon: "🌊", name: "Andaman",    tag: "Islands"    },
-    { icon: "🗼", name: "Paris",      tag: "Romance"    },
-    { icon: "🗽", name: "New York",   tag: "City"       },
-    { icon: "🌸", name: "Tokyo",      tag: "Asia"       },
-    { icon: "🏝️", name: "Maldives",   tag: "Luxury"     },
-    { icon: "🦁", name: "Kenya",      tag: "Safari"     },
-    { icon: "🎭", name: "London",     tag: "Historic"   },
-    { icon: "🌅", name: "Santorini",  tag: "Scenic"     },
-    { icon: "🏜️", name: "Rajasthan",  tag: "Desert"     },
-    { icon: "🎋", name: "Dandeli",    tag: "Adventure"  },
+    { icon: "🏖️", name: "Goa", tag: "Beach" },
+    { icon: "🏔️", name: "Manali", tag: "Mountains" },
+    { icon: "🕌", name: "Varanasi", tag: "Heritage" },
+    { icon: "🌴", name: "Kerala", tag: "Nature" },
+    { icon: "🐯", name: "Ranthambore", tag: "Wildlife" },
+    { icon: "🏯", name: "Jaipur", tag: "Culture" },
+    { icon: "🌊", name: "Andaman", tag: "Islands" },
+    { icon: "🗼", name: "Paris", tag: "Romance" },
+    { icon: "🗽", name: "New York", tag: "City" },
+    { icon: "🌸", name: "Tokyo", tag: "Asia" },
+    { icon: "🏝️", name: "Maldives", tag: "Luxury" },
+    { icon: "🦁", name: "Kenya", tag: "Safari" },
+    { icon: "🎭", name: "London", tag: "Historic" },
+    { icon: "🌅", name: "Santorini", tag: "Scenic" },
+    { icon: "🏜️", name: "Rajasthan", tag: "Desert" },
+    { icon: "🎋", name: "Dandeli", tag: "Adventure" },
 ];
 
 function buildStrip() {
@@ -31,7 +31,6 @@ function buildStrip() {
 }
 buildStrip();
 
-// ── Budget listeners ─────────────────────────────────────────────
 document.getElementById("budget").addEventListener("input", updateBudget);
 document.getElementById("days").addEventListener("input", updateBudget);
 document.getElementById("destination").addEventListener("input", updateBudget);
@@ -42,19 +41,19 @@ let debounceTimer = null;
 async function updateBudget() {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(async () => {
-        const total    = parseInt(document.getElementById("budget").value);
-        const days     = parseInt(document.getElementById("days").value) || 1;
+        const total = parseInt(document.getElementById("budget").value);
+        const days = parseInt(document.getElementById("days").value) || 1;
         const location = document.getElementById("destination").value.trim();
-        const style    = document.getElementById("style").value;
-        const start    = document.getElementById("start").value.trim() || "Not specified";
-        const box      = document.getElementById("budgetBreakdown");
+        const style = document.getElementById("style").value;
+        const start = document.getElementById("start").value.trim() || "Not specified";
+        const box = document.getElementById("budgetBreakdown");
 
         if (!total || total <= 0 || location.length < 3) { box.innerHTML = ""; return; }
 
         box.innerHTML = `<span style="opacity:0.5; font-size:12px;">⏳ Calculating split for <b>${location}</b>…</span>`;
 
         try {
-            const res  = await fetch("/budget-preview", {
+            const res = await fetch("/budget-preview", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ location, days, budget: total, style, start })
@@ -92,16 +91,16 @@ function fallbackBudget(total, days, location, style) {
 
     let stayPerDay, foodPerDay, activityPerDay, transportBase;
     if (locationType === "international") { stayPerDay = 5000; foodPerDay = 1500; activityPerDay = 1200; transportBase = 8000; }
-    else if (locationType === "metro")    { stayPerDay = 2000; foodPerDay = 600;  activityPerDay = 500;  transportBase = 1500; }
-    else if (locationType === "tourist")  { stayPerDay = 1500; foodPerDay = 500;  activityPerDay = 600;  transportBase = 1200; }
-    else                                  { stayPerDay = 800;  foodPerDay = 300;  activityPerDay = 300;  transportBase = 500;  }
+    else if (locationType === "metro") { stayPerDay = 2000; foodPerDay = 600; activityPerDay = 500; transportBase = 1500; }
+    else if (locationType === "tourist") { stayPerDay = 1500; foodPerDay = 500; activityPerDay = 600; transportBase = 1200; }
+    else { stayPerDay = 800; foodPerDay = 300; activityPerDay = 300; transportBase = 500; }
 
     let multiplier = style === "Budget" ? 0.8 : style === "Luxury" ? 1.8 : 1;
-    let stay       = Math.floor(stayPerDay * days * multiplier);
-    let food       = Math.floor(foodPerDay * days * multiplier);
+    let stay = Math.floor(stayPerDay * days * multiplier);
+    let food = Math.floor(foodPerDay * days * multiplier);
     let activities = Math.floor(activityPerDay * days * multiplier);
-    let transport  = Math.floor(transportBase + 200 * days);
-    const scale    = total / (stay + food + activities + transport);
+    let transport = Math.floor(transportBase + 200 * days);
+    const scale = total / (stay + food + activities + transport);
     stay = Math.floor(stay * scale); food = Math.floor(food * scale);
     activities = Math.floor(activities * scale); transport = Math.floor(transport * scale);
 
@@ -123,46 +122,48 @@ function fallbackBudget(total, days, location, style) {
 // ── Overlay controls ─────────────────────────────────────────────
 function openOverlay(location) {
     const overlay = document.getElementById("overlay");
-    const body    = document.getElementById("overlayBody");
-    const title   = document.getElementById("overlayTitle");
+    const body = document.getElementById("overlayBody");
+    const title = document.getElementById("overlayTitle");
+
     title.textContent = `📍 ${location} — Your Trip Plan`;
     body.innerHTML = `
         <div class="overlay-loading">
-            <div class="plane">✈️</div>
-            <p>Generating your personalised plan for <b>${location}</b>…</p>
+            <div class="plane-wrapper">
+                <div class="loading-ring-outer"></div>
+                <div class="loading-ring"></div>
+                <div class="plane">✈️</div>
+            </div>
+            <p id="loadingStatusText">Generating your premium travel itinerary for <b>${location}</b>…</p>
+            <div class="loading-progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
         </div>`;
-    switchTab("itinerary");
+
     overlay.classList.add("active");
     document.body.style.overflow = "hidden";
 }
 
 function closeOverlay() {
-    document.getElementById("overlay").classList.remove("active");
+    const overlay = document.getElementById("overlay");
+    overlay.classList.remove("active");
     document.body.style.overflow = "";
-    if (window._tripMap) { window._tripMap.remove(); window._tripMap = null; }
-    sessionStorage.setItem("overlayOpen", "false");
 }
 
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeOverlay(); });
+// ── ESC key closes overlay ────────────────────────────────────────
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeOverlay();
+});
 
-// ── Tab switching ────────────────────────────────────────────────
-function switchTab(tabName) {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabName));
-    document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === `tab-${tabName}`));
-    if (tabName === "map" && window._tripMap) {
-        setTimeout(() => window._tripMap.invalidateSize(), 100);
-    }
-    sessionStorage.setItem("activeTab", tabName);
-}
-
-// ── Generate plan (ENHANCED) ─────────────────────────────────────
+// ── Generate plan ─────────────────────────────────────────────────
 async function generatePlan() {
     const location = document.getElementById("destination").value.trim();
-    const days     = parseInt(document.getElementById("days").value);
-    const budget   = parseInt(document.getElementById("budget").value);
-    const style    = document.getElementById("style").value;
+    const days = parseInt(document.getElementById("days").value);
+    const budget = parseInt(document.getElementById("budget").value);
+    const style = document.getElementById("style").value;
     const interest = document.getElementById("interests").value;
-    const start    = document.getElementById("start").value.trim() || "Not specified";
+    const start = document.getElementById("start").value.trim() || "Not specified";
 
     if (!location || !days || !budget) { alert("Please fill in destination, days, and budget."); return; }
 
@@ -170,11 +171,8 @@ async function generatePlan() {
     btn.disabled = true; btn.textContent = "⏳ Planning…";
     openOverlay(location);
 
-    // Show loading skeletons in other tabs
-    showSkeletons();
-
     try {
-        const res  = await fetch("/plan", {
+        const res = await fetch("/plan", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ location, days, budget, style, interest, start })
@@ -182,29 +180,17 @@ async function generatePlan() {
         const data = await res.json();
         const body = document.getElementById("overlayBody");
 
+        if (window._loadingInterval) { clearInterval(window._loadingInterval); window._loadingInterval = null; }
+
         if (data.error) {
             body.innerHTML = `<div style="color:#ff6b6b; padding:20px; text-align:center;">❌ ${data.error}</div>`;
             return;
         }
 
-        // Save state for persistence on refresh
-        sessionStorage.setItem("tripForm", JSON.stringify({ location, days, budget, style, interest, start }));
-        sessionStorage.setItem("tripPlan", JSON.stringify(data));
-        sessionStorage.setItem("overlayOpen", "true");
-        sessionStorage.removeItem("placesData"); // Clear previous cached places
+        body.innerHTML = formatReply(data.reply, location, days, budget);
 
-        if (data.format === "json" && typeof data.reply === "object") {
-            const plan = data.reply;
-            body.innerHTML = formatStructuredReply(plan, location, days, budget);
-            loadMapAndPlaces(plan.places || [], location, start);
-            renderHotels(plan.hotels || [], location);
-            renderGallery(plan.places || [], location);
-        } else {
-            // Fallback to legacy text format
-            const text = typeof data.reply === "string" ? data.reply : JSON.stringify(data.reply);
-            body.innerHTML = formatReplyLegacy(text, location, days, budget);
-        }
     } catch (err) {
+        if (window._loadingInterval) { clearInterval(window._loadingInterval); window._loadingInterval = null; }
         document.getElementById("overlayBody").innerHTML =
             `<div style="color:#ff6b6b; padding:20px; text-align:center;">❌ Network error. Please try again.</div>`;
     } finally {
@@ -212,105 +198,60 @@ async function generatePlan() {
     }
 }
 
-// ── Loading skeletons ────────────────────────────────────────────
-function showSkeletons() {
-    const skel = `<div class="skeleton-card"></div>`.repeat(4);
-    document.getElementById("hotelsContainer").innerHTML = `<div class="skeleton-grid">${skel}</div>`;
-    document.getElementById("galleryContainer").innerHTML = `<div class="skeleton-grid">${skel}</div>`;
-    document.getElementById("mapLegend").innerHTML = "";
-}
-
-// ── Format structured JSON reply (STYLISH TIMELINE) ────────────────
-function formatStructuredReply(plan, location, days, budget) {
+// ── Format AI reply into rich HTML ───────────────────────────────
+function formatReply(text, location, days, budget) {
     let html = `
-    <div class="result-header">
-        <span>📍</span><span>${location}</span>
-        <span style="opacity:0.35">·</span><span>${days} Day${days > 1 ? "s" : ""}</span>
-        <span style="opacity:0.35">·</span><span>₹${budget.toLocaleString()}</span>
-    </div>`;
+        <div class="result-header">
+            <span>📍</span>
+            <span>${location}</span>
+            <span style="opacity:0.35">·</span>
+            <span>${days} Day${days > 1 ? "s" : ""}</span>
+            <span style="opacity:0.35">·</span>
+            <span>₹${budget.toLocaleString()}</span>
+        </div>`;
 
-    // Itinerary Timeline
-    if (plan.itinerary) {
-        html += `<div class="timeline-container">`;
-        plan.itinerary.forEach((day, index) => {
-            const imgQuery = encodeURIComponent(`${day.title} ${location} travel`);
-            html += `
-            <div class="timeline-item" style="animation-delay:${index * 0.15}s">
-                <div class="timeline-marker">Day ${day.day}</div>
-                <div class="timeline-content">
-                    <div class="timeline-img-wrapper">
-                        <img src="/image-proxy?q=${imgQuery}" alt="Day ${day.day}" loading="lazy">
-                    </div>
-                    <div class="timeline-text">
-                        <h4 class="timeline-title">${day.title}</h4>
-                        <p class="timeline-desc">
-                            ${day.description || (day.activities || []).join(". ")}
-                        </p>
-                    </div>
-                </div>
-            </div>`;
-        });
-        html += `</div>`;
-    }
-
-    // Budget breakdown
-    if (plan.budget_breakdown) {
-        const bb = plan.budget_breakdown;
-        html += `<div class="section-title" style="margin-top:40px;">💰 Budget Breakdown</div>
-        <div class="budget-grid">`;
-        const items = [
-            ["🏨 Stay", bb.stay], ["🍜 Food", bb.food], ["🚗 Transport", bb.transport],
-            ["🎯 Activities", bb.activities], ["🧾 Misc", bb.misc]
-        ];
-        items.forEach(([label, val]) => {
-            if (val) html += `<div class="budget-card">
-                <div class="budget-label">${label}</div>
-                <div class="budget-val">₹${val.toLocaleString()}</div>
-            </div>`;
-        });
-        html += `</div>`;
-    }
-
-    // Tips
-    if (plan.tips && plan.tips.length) {
-        html += `<div class="section-title">💡 Travel Tips</div>`;
-        plan.tips.forEach(tip => { html += `<div class="tip-item">💡 ${tip}</div>`; });
-    }
-
-    return html;
-}
-
-// ── Legacy text formatter (backward compatible) ──────────────────
-function formatReplyLegacy(text, location, days, budget) {
-    let html = `<div class="result-header">
-        <span>📍</span><span>${location}</span>
-        <span style="opacity:0.35">·</span><span>${days} Day${days > 1 ? "s" : ""}</span>
-        <span style="opacity:0.35">·</span><span>₹${budget.toLocaleString()}</span>
-    </div>`;
     const lines = text.split("\n").filter(l => l.trim() !== "");
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (/^(day\s*\d+|###\s*day)/i.test(line)) {
-            html += `<div class="day-card"><div class="day-title">📅 ${line.replace(/^#+\s*/, "")}</div>`;
+            html += `<div class="day-timeline-card expanded">
+                <div class="day-card-header">
+                    <div class="day-card-title-group">
+                        <div class="day-card-number">📅</div>
+                        <div class="day-card-title">${line.replace(/^#+\s*/, "")}</div>
+                    </div>
+                </div>
+                <div class="day-card-body">`;
             while (i + 1 < lines.length && /^[-•*]/.test(lines[i + 1].trim())) {
-                i++; html += `<div class="day-item">→ ${lines[i].trim().replace(/^[-•*]\s*/, "")}</div>`;
+                i++;
+                html += `<div class="day-item">→ ${lines[i].trim().replace(/^[-•*]\s*/, "")}</div>`;
             }
             html += `</div>`;
-        } else if (/^(##|#|\d+\.\s)/i.test(line)) {
+        }
+        else if (/^(##|#|\d+\.\s)/i.test(line)) {
             html += `<div class="section-title">${line.replace(/^#+\s*/, "").replace(/^\d+\.\s*/, "")}</div>`;
         } else if (/tip|note|advice/i.test(line) && line.length < 160) {
             html += `<div class="tip-item">💡 ${line.replace(/^[-•*]\s*/, "")}</div>`;
-        } else if (/₹|\brupee|\bcost|\bbudget/i.test(line)) {
+        }
+        else if (/₹|\brupee|\bcost|\bbudget|\bprice|\bfee/i.test(line)) {
             const parts = line.split(":");
             if (parts.length >= 2) {
-                html += `<div class="budget-row"><span>${parts[0].replace(/^[-•*\d.]\s*/, "").trim()}</span><span>${parts.slice(1).join(":").trim()}</span></div>`;
-            } else { html += `<div class="budget-row"><span>${line}</span></div>`; }
-        } else if (/^[-•*]/.test(line)) {
+                html += `<div class="budget-row">
+                    <span>${parts[0].replace(/^[-•*\d.]\s*/, "").trim()}</span>
+                    <span>${parts.slice(1).join(":").trim()}</span>
+                </div>`;
+            } else {
+                html += `<div class="budget-row"><span>${line}</span></div>`;
+            }
+        }
+        else if (/^[-•*]/.test(line)) {
             html += `<div class="bullet-line">→ ${line.replace(/^[-•*]\s*/, "")}</div>`;
-        } else {
+        }
+        else {
             html += `<div class="normal-line">${line}</div>`;
         }
     }
+
     return html;
 }
 
@@ -404,11 +345,11 @@ function renderHotels(hotels, destination) {
         </div>
         <div class="hotels-grid">
             ${hotels.map((h, i) => {
-                const imgQuery = encodeURIComponent(`${h.name} hotel ${destination}`);
-                const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + ' ' + destination)}`;
-                const stars = '⭐'.repeat(Math.floor(h.rating || 4));
-                const typeClass = (h.type || 'mid-range').toLowerCase().replace(/\s+/g, '-');
-                return `
+        const imgQuery = encodeURIComponent(`${h.name} hotel ${destination}`);
+        const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + ' ' + destination)}`;
+        const stars = '⭐'.repeat(Math.floor(h.rating || 4));
+        const typeClass = (h.type || 'mid-range').toLowerCase().replace(/\s+/g, '-');
+        return `
                 <div class="hotel-card" style="animation-delay:${i * 0.1}s">
                     <div class="hotel-img-wrapper">
                         <img src="/image-proxy?q=${imgQuery}" alt="${h.name}" loading="lazy">
@@ -426,7 +367,7 @@ function renderHotels(hotels, destination) {
                         </div>
                     </div>
                 </div>`;
-            }).join("")}
+    }).join("")}
         </div>`;
 }
 
@@ -442,10 +383,10 @@ function renderGallery(places, destination) {
         <div class="gallery-header"><h3>📸 ${destination} — Places Gallery</h3></div>
         <div class="gallery-grid">
             ${places.map((p, i) => {
-                const name = typeof p === "string" ? p : p.name;
-                const cat = typeof p === "string" ? "" : (p.category || "");
-                const imgQuery = encodeURIComponent(`${name} ${cat} ${destination} travel`);
-                return `
+        const name = typeof p === "string" ? p : p.name;
+        const cat = typeof p === "string" ? "" : (p.category || "");
+        const imgQuery = encodeURIComponent(`${name} ${cat} ${destination} travel`);
+        return `
                 <div class="gallery-card" style="animation-delay:${i * 0.08}s">
                     <img src="/image-proxy?q=${imgQuery}" alt="${name}" loading="lazy">
                     <div class="gallery-overlay">
@@ -453,7 +394,7 @@ function renderGallery(places, destination) {
                         ${cat ? `<span class="gallery-cat">${cat}</span>` : ''}
                     </div>
                 </div>`;
-            }).join("")}
+    }).join("")}
         </div>`;
 }
 
@@ -462,10 +403,26 @@ function openInGoogleMaps(query) {
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, "_blank");
 }
 
-// ── Reset form ────────────────────────────────────────────────────
+// Share plan via clipboard link
+function shareTrip() {
+    const location = document.getElementById("heroTitle").textContent;
+    const shareText = `Check out my travel plan for ${location} generated with AI Trip Planner! ✈️🌍`;
+    navigator.clipboard.writeText(shareText).then(() => {
+        alert("Trip link copied to clipboard! 📤");
+    }).catch(err => {
+        alert("Failed to copy link. Please manually copy the URL.");
+    });
+}
+
+// Export as PDF using browser printing
+function exportPDF() {
+    window.print();
+}
+
+// Reset form
 function resetForm() {
     ["destination", "days", "budget", "start"].forEach(id => document.getElementById(id).value = "");
-    document.getElementById("style").selectedIndex     = 0;
+    document.getElementById("style").selectedIndex = 0;
     document.getElementById("interests").selectedIndex = 0;
     document.getElementById("budgetBreakdown").innerHTML = "";
     sessionStorage.removeItem("tripForm");
@@ -475,68 +432,3 @@ function resetForm() {
     sessionStorage.removeItem("placesData");
     closeOverlay();
 }
-
-// ── State Persistence ──────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-    // Restore form values
-    const savedForm = sessionStorage.getItem("tripForm");
-    if (savedForm) {
-        try {
-            const form = JSON.parse(savedForm);
-            if (form.location) document.getElementById("destination").value = form.location;
-            if (form.start) document.getElementById("start").value = form.start;
-            if (form.days) document.getElementById("days").value = form.days;
-            if (form.budget) document.getElementById("budget").value = form.budget;
-            if (form.style) document.getElementById("style").value = form.style;
-            if (form.interest) document.getElementById("interests").value = form.interest;
-            updateBudget();
-        } catch (e) {
-            console.error("Error restoring form:", e);
-        }
-    }
-
-    // Restore overlay and plan
-    const isOverlayOpen = sessionStorage.getItem("overlayOpen") === "true";
-    if (isOverlayOpen && savedForm) {
-        const savedPlanStr = sessionStorage.getItem("tripPlan");
-        if (savedPlanStr) {
-            try {
-                const data = JSON.parse(savedPlanStr);
-                const form = JSON.parse(savedForm);
-                
-                openOverlay(form.location);
-                showSkeletons();
-                
-                const body = document.getElementById("overlayBody");
-                
-                if (data.format === "json" && typeof data.reply === "object") {
-                    const plan = data.reply;
-                    body.innerHTML = formatStructuredReply(plan, form.location, form.days, form.budget);
-                    
-                    const cachedPlaces = sessionStorage.getItem("placesData");
-                    if (cachedPlaces) {
-                        const placesData = JSON.parse(cachedPlaces);
-                        initTripMap(placesData, form.location);
-                        window._placesData = placesData;
-                    } else {
-                        loadMapAndPlaces(plan.places || [], form.location, form.start);
-                    }
-                    
-                    renderHotels(plan.hotels || [], form.location);
-                    renderGallery(plan.places || [], form.location);
-                } else {
-                    const text = typeof data.reply === "string" ? data.reply : JSON.stringify(data.reply);
-                    body.innerHTML = formatReplyLegacy(text, form.location, form.days, form.budget);
-                }
-                
-                // Restore active tab
-                const activeTab = sessionStorage.getItem("activeTab");
-                if (activeTab) {
-                    switchTab(activeTab);
-                }
-            } catch (e) {
-                console.error("Error restoring plan:", e);
-            }
-        }
-    }
-});
